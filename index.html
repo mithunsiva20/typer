@@ -1,0 +1,2408 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeMaster — Professional Typing Speed Platform</title>
+  <meta name="description" content="Master your typing speed, accuracy, and consistency with TypeMaster.">
+  <style>
+    /* ==========================================================================
+       CSS Variables & Themes
+       ========================================================================== */
+    :root {
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      --font-mono: "Courier New", Courier, monospace;
+      --radius-sm: 6px;
+      --radius-md: 12px;
+      --radius-lg: 18px;
+      --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    [data-theme="dark"] {
+      --bg-base: #0f1115;
+      --bg-surface: #181a20;
+      --bg-surface-elevated: #22252e;
+      --border: #2d313b;
+      --border-focus: #4e5569;
+      --text-main: #f0f2f5;
+      --text-muted: #8a919e;
+      --text-dim: #545b69;
+      --primary: #f5a623;
+      --primary-hover: #e09419;
+      --primary-subtle: rgba(245, 166, 35, 0.12);
+      --success: #10b981;
+      --success-subtle: rgba(16, 185, 129, 0.15);
+      --danger: #ef4444;
+      --danger-subtle: rgba(239, 68, 68, 0.15);
+      --char-pending: #656c7d;
+      --char-correct: #f0f2f5;
+      --char-incorrect: #ef4444;
+      --char-extra: #b91c1c;
+      --caret-color: #f5a623;
+    }
+
+    [data-theme="light"] {
+      --bg-base: #f5f6fa;
+      --bg-surface: #ffffff;
+      --bg-surface-elevated: #f0f2f7;
+      --border: #e2e5eb;
+      --border-focus: #cbd0dc;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --text-dim: #9ca3af;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --primary-subtle: rgba(59, 130, 246, 0.12);
+      --success: #059669;
+      --success-subtle: rgba(5, 150, 105, 0.12);
+      --danger: #dc2626;
+      --danger-subtle: rgba(220, 38, 38, 0.12);
+      --char-pending: #94a3b8;
+      --char-correct: #1e293b;
+      --char-incorrect: #dc2626;
+      --char-extra: #991b1b;
+      --caret-color: #3b82f6;
+    }
+
+    [data-theme="cyberpunk"] {
+      --bg-base: #080710;
+      --bg-surface: #120e24;
+      --bg-surface-elevated: #1e173b;
+      --border: #352668;
+      --border-focus: #00ffcc;
+      --text-main: #00ffcc;
+      --text-muted: #ff007f;
+      --text-dim: #6c4b9e;
+      --primary: #ffe600;
+      --primary-hover: #e5cf00;
+      --primary-subtle: rgba(255, 230, 0, 0.15);
+      --success: #00ffcc;
+      --success-subtle: rgba(0, 255, 204, 0.15);
+      --danger: #ff0055;
+      --danger-subtle: rgba(255, 0, 85, 0.15);
+      --char-pending: #534277;
+      --char-correct: #ffffff;
+      --char-incorrect: #ff0055;
+      --char-extra: #ff3377;
+      --caret-color: #00ffcc;
+    }
+
+    /* ==========================================================================
+       Reset & Base Styles
+       ========================================================================== */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      transition: background-color 0.25s ease, color 0.25s ease;
+      line-height: 1.5;
+    }
+
+    /* ==========================================================================
+       Header & Navigation
+       ========================================================================== */
+    .app-header {
+      background-color: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 1.25rem;
+      letter-spacing: -0.5px;
+      color: var(--text-main);
+      user-select: none;
+      text-decoration: none;
+    }
+
+    .brand-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, var(--primary), #ec4899);
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-weight: 900;
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 0.4rem;
+      background: var(--bg-surface-elevated);
+      padding: 0.3rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+    }
+
+    .nav-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.45rem 0.95rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-btn:hover {
+      color: var(--text-main);
+    }
+
+    .nav-btn.active {
+      background: var(--bg-surface);
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .header-tools {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .icon-btn {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: var(--radius-sm);
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .icon-btn:hover {
+      color: var(--text-main);
+      border-color: var(--border-focus);
+    }
+
+    /* ==========================================================================
+       Layout & Containers
+       ========================================================================== */
+    .main-content {
+      flex: 1;
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    .view-panel {
+      display: none;
+      animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .view-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       Dashboard View
+       ========================================================================== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-card-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: var(--font-mono);
+      line-height: 1;
+    }
+
+    .stat-card-sub {
+      margin-top: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    .dash-columns {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .dash-columns { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .action-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 0.75rem 1.2rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+    }
+
+    .btn:hover {
+      border-color: var(--border-focus);
+      background: var(--border);
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #0f1115;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      border-color: var(--primary-hover);
+    }
+
+    .btn-danger {
+      color: var(--danger);
+      border-color: var(--danger-subtle);
+      background: transparent;
+    }
+
+    .btn-danger:hover {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    /* History table */
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.88rem;
+    }
+
+    th {
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      padding: 0.65rem 0.75rem;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-main);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ==========================================================================
+       Typing Test Arena
+       ========================================================================== */
+    .test-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      padding: 0.8rem 1.2rem;
+      border-radius: var(--radius-md);
+      margin-bottom: 2rem;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pill-selector {
+      display: flex;
+      background: var(--bg-surface-elevated);
+      border-radius: var(--radius-sm);
+      padding: 0.2rem;
+      border: 1px solid var(--border);
+    }
+
+    .pill-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.35rem 0.75rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: calc(var(--radius-sm) - 2px);
+      transition: var(--transition);
+    }
+
+    .pill-btn:hover {
+      color: var(--text-main);
+    }
+
+    .pill-btn.active {
+      background: var(--primary);
+      color: #0f1115;
+    }
+
+    .custom-input {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      padding: 0.35rem 0.6rem;
+      border-radius: var(--radius-sm);
+      width: 70px;
+      font-size: 0.85rem;
+      display: none;
+    }
+
+    /* Live metrics row */
+    .live-metrics-bar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 1.25rem;
+      padding: 0 0.5rem;
+    }
+
+    .metric-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .metric-value {
+      font-size: 2.2rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 4px;
+      background: var(--border);
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--primary);
+      transition: width 0.15s ease-out;
+    }
+
+    /* Typing Arena box */
+    .typing-box {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      position: relative;
+      cursor: text;
+      user-select: none;
+      outline: none;
+      min-height: 200px;
+    }
+
+    .typing-box.focused {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 2px var(--primary-subtle);
+    }
+
+    .hidden-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      left: 0;
+      top: 0;
+    }
+
+    .words-wrapper {
+      font-family: var(--font-mono);
+      font-size: 1.45rem;
+      line-height: 2.2rem;
+      color: var(--char-pending);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6em;
+      position: relative;
+      overflow: hidden;
+      max-height: 13.5rem;
+    }
+
+    .word {
+      display: inline-flex;
+      position: relative;
+    }
+
+    .char {
+      position: relative;
+      transition: color 0.05s ease;
+    }
+
+    .char.correct {
+      color: var(--char-correct);
+    }
+
+    .char.incorrect {
+      color: var(--char-incorrect);
+      text-decoration: underline;
+    }
+
+    .char.extra {
+      color: var(--char-extra);
+      opacity: 0.85;
+    }
+
+    /* Caret */
+    .caret {
+      position: absolute;
+      width: 2.5px;
+      height: 1.4em;
+      background-color: var(--caret-color);
+      top: 0.4em;
+      left: 0;
+      pointer-events: none;
+      transition: left 0.075s linear, top 0.075s linear;
+      z-index: 10;
+      border-radius: 2px;
+      animation: caretBlink 1.1s infinite;
+    }
+
+    .caret.typing {
+      animation: none;
+      opacity: 1 !important;
+    }
+
+    @keyframes caretBlink {
+      0%, 45% { opacity: 1; }
+      50%, 95% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    .test-actions {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .shortcut-hint {
+      text-align: center;
+      margin-top: 1rem;
+      color: var(--text-dim);
+      font-size: 0.8rem;
+    }
+
+    kbd {
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.15rem 0.4rem;
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    /* Focus overlay */
+    .focus-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(15, 17, 21, 0.8);
+      backdrop-filter: blur(2px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      z-index: 20;
+    }
+
+    .typing-box.is-focused .focus-overlay {
+      display: none;
+    }
+
+    /* ==========================================================================
+       Results Modal / Screen
+       ========================================================================== */
+    .results-container {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2.5rem;
+      margin-top: 1rem;
+      animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .results-hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+      margin-bottom: 2rem;
+      align-items: center;
+    }
+
+    .results-wpm-box {
+      border-right: 1px solid var(--border);
+      padding-right: 2rem;
+    }
+
+    .results-wpm-huge {
+      font-size: 5rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--primary);
+      line-height: 1;
+    }
+
+    .results-wpm-label {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .metrics-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.25rem;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 220px;
+      margin: 2rem 0;
+      background: var(--bg-surface-elevated);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      padding: 1rem;
+      position: relative;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* ==========================================================================
+       Practice Arena
+       ========================================================================== */
+    .practice-presets {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .practice-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .practice-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .practice-card h4 {
+      font-size: 1.05rem;
+      margin-bottom: 0.4rem;
+      color: var(--text-main);
+    }
+
+    .practice-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .custom-practice-area {
+      margin-top: 1.5rem;
+    }
+
+    textarea.custom-text-input {
+      width: 100%;
+      height: 120px;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 1rem;
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      resize: vertical;
+      margin-bottom: 1rem;
+    }
+
+    textarea.custom-text-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    /* ==========================================================================
+       Settings View
+       ========================================================================== */
+    .settings-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .setting-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+    }
+
+    .setting-info h4 {
+      font-size: 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .setting-info p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    select.setting-control {
+      background: var(--bg-surface-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border);
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.9rem;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Custom Switch Toggle */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 48px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      inset: 0;
+      background-color: var(--bg-surface-elevated);
+      border: 1px solid var(--border);
+      transition: var(--transition);
+      border-radius: 34px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: var(--text-muted);
+      transition: var(--transition);
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(22px);
+      background-color: #0f1115;
+    }
+
+    /* ==========================================================================
+       Footer
+       ========================================================================== */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      margin-top: auto;
+    }
+
+    /* Key indicator notification toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--bg-surface-elevated);
+      border: 1px solid var(--primary);
+      color: var(--text-main);
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      font-size: 0.9rem;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand" id="brand-home-btn" title="Go to Home Dashboard">
+        <div class="brand-icon">T</div>
+        <span>TypeMaster</span>
+      </div>
+
+      <nav class="nav-tabs" role="tablist">
+        <button class="nav-btn active" data-tab="dash-view">Dashboard</button>
+        <button class="nav-btn" data-tab="test-view">Typing Test</button>
+        <button class="nav-btn" data-tab="practice-view">Practice</button>
+        <button class="nav-btn" data-tab="stats-view">Statistics</button>
+        <button class="nav-btn" data-tab="settings-view">Settings</button>
+      </nav>
+
+      <div class="header-tools">
+        <button class="icon-btn" id="theme-toggle" title="Toggle Theme">◐</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main View Area -->
+  <main class="main-content">
+
+    <!-- 1. DASHBOARD VIEW -->
+    <section id="dash-view" class="view-panel active">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-title">Completed Tests</div>
+          <div class="stat-card-value" id="dash-total-tests">0</div>
+          <div class="stat-card-sub">Total recorded sessions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-title">Average WPM</div>
+          <div class="stat-card-value" id="dash-avg-wpm">0</div>
+          <div class="stat-card-sub">All-time typing speed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-title">Personal Best</div>
+          <div class="stat-card-value" id="dash-best-wpm">0</div>
+          <div class="stat-card-sub">Highest recorded WPM</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-title">Average Accuracy</div>
+          <div class="stat-card-value" id="dash-avg-acc">0%</div>
+          <div class="stat-card-sub">Keystroke precision</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-title">Practice Time</div>
+          <div class="stat-card-value" id="dash-total-time">0m</div>
+          <div class="stat-card-sub">Cumulative active typing</div>
+        </div>
+      </div>
+
+      <div class="dash-columns">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Recent Activity</h3>
+            <span class="stat-card-sub" id="history-count-badge">Last 5 tests</span>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Mode</th>
+                  <th>Net WPM</th>
+                  <th>Accuracy</th>
+                  <th>Errors</th>
+                </tr>
+              </thead>
+              <tbody id="dash-history-body">
+                <tr><td colspan="5" style="text-align:center; color:var(--text-dim);">No tests recorded yet. Take your first test!</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Quick Actions</h3>
+          </div>
+          <div class="action-btn-grid">
+            <button class="btn btn-primary" id="btn-quick-test">⚡ Start Test</button>
+            <button class="btn" id="btn-quick-practice">🎯 Practice Drills</button>
+            <button class="btn" id="btn-quick-stats">📊 View Stats</button>
+            <button class="btn btn-danger" id="btn-quick-reset">🗑 Reset Data</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TYPING TEST VIEW -->
+    <section id="test-view" class="view-panel">
+      <!-- Controls Bar -->
+      <div class="test-controls" id="test-controls-bar">
+        <div class="control-group">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">MODE</span>
+          <div class="pill-selector" id="mode-selector">
+            <button class="pill-btn active" data-mode="time">Time</button>
+            <button class="pill-btn" data-mode="words">Words</button>
+            <button class="pill-btn" data-mode="custom">Custom</button>
+          </div>
+        </div>
+
+        <!-- Sub-options for Time -->
+        <div class="control-group" id="sub-options-time">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">SECONDS</span>
+          <div class="pill-selector">
+            <button class="pill-btn" data-val="15">15s</button>
+            <button class="pill-btn active" data-val="30">30s</button>
+            <button class="pill-btn" data-val="60">60s</button>
+            <button class="pill-btn" data-val="120">120s</button>
+          </div>
+        </div>
+
+        <!-- Sub-options for Words -->
+        <div class="control-group" id="sub-options-words" style="display:none;">
+          <span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">COUNT</span>
+          <div class="pill-selector">
+            <button class="pill-btn" data-val="10">10</button>
+            <button class="pill-btn active" data-val="25">25</button>
+            <button class="pill-btn" data-val="50">50</button>
+            <button class="pill-btn" data-val="100">100</button>
+          </div>
+        </div>
+
+        <!-- Custom Mode Config -->
+        <div class="control-group" id="sub-options-custom" style="display:none;">
+          <div class="pill-selector" id="custom-type-selector">
+            <button class="pill-btn active" data-custom-type="time">Time (s)</button>
+            <button class="pill-btn" data-custom-type="words">Words</button>
+          </div>
+          <input type="number" id="custom-input-val" class="custom-input" style="display:block;" min="5" max="300" value="45" />
+          <button class="pill-btn" id="custom-apply-btn">Set</button>
+        </div>
+      </div>
+
+      <!-- Test Container -->
+      <div id="test-runner-container">
+        <!-- Live Metrics -->
+        <div class="live-metrics-bar">
+          <div class="metric-item">
+            <span class="metric-label" id="timer-label">Time Remaining</span>
+            <span class="metric-value" id="live-timer">30</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Live WPM</span>
+            <span class="metric-value" id="live-wpm">0</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Accuracy</span>
+            <span class="metric-value" id="live-accuracy">100%</span>
+          </div>
+          <div class="metric-item">
+            <span class="metric-label">Errors</span>
+            <span class="metric-value" id="live-mistakes">0</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar-wrap">
+          <div class="progress-bar-fill" id="test-progress-bar"></div>
+        </div>
+
+        <!-- Typing Box -->
+        <div class="typing-box" id="typing-arena" tabindex="0">
+          <div class="focus-overlay" id="typing-focus-prompt">Click or press any key to focus</div>
+          <div class="caret" id="typing-caret"></div>
+          <div class="words-wrapper" id="words-container"></div>
+          <input type="text" class="hidden-input" id="hidden-typing-input" autocomplete="off" autocapitalize="off" spellcheck="false" />
+        </div>
+
+        <!-- Actions below arena -->
+        <div class="test-actions">
+          <button class="btn" id="btn-restart-test" title="Restart test">↻ Restart Test</button>
+          <button class="btn" id="btn-new-text" title="Generate new text">⏩ Next Text</button>
+        </div>
+        <div class="shortcut-hint">
+          Tip: Press <kbd>Tab</kbd> + <kbd>Enter</kbd> to restart instantly anytime.
+        </div>
+      </div>
+
+      <!-- Results Screen (Hidden initially) -->
+      <div id="test-results-container" class="results-container" style="display:none;">
+        <div class="results-hero">
+          <div class="results-wpm-box">
+            <div class="results-wpm-huge" id="res-net-wpm">0</div>
+            <div class="results-wpm-label">Net Words Per Minute</div>
+            <p style="font-size:0.85rem; color:var(--text-muted); margin-top:0.4rem;">
+              Gross Speed: <span id="res-gross-wpm" style="font-weight:600; color:var(--text-main);">0</span> WPM
+            </p>
+          </div>
+
+          <div class="metrics-summary-grid">
+            <div class="stat-card">
+              <div class="stat-card-title">Accuracy</div>
+              <div class="stat-card-value" id="res-accuracy">0%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-title">Errors</div>
+              <div class="stat-card-value" id="res-mistakes" style="color:var(--danger)">0</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-title">Consistency</div>
+              <div class="stat-card-value" id="res-consistency">0%</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-card-title">Keystrokes</div>
+              <div class="stat-card-value" id="res-keystrokes" style="font-size:1.5rem;">0 / 0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Performance Chart Canvas -->
+        <h4 style="margin-bottom:0.5rem; font-size: 0.95rem; color:var(--text-muted);">Speed & Mistake Timeline</h4>
+        <div class="chart-container">
+          <canvas id="result-chart-canvas"></canvas>
+        </div>
+
+        <!-- Post Test Actions -->
+        <div class="test-actions" style="margin-top: 1.5rem;">
+          <button class="btn btn-primary" id="btn-res-again">↻ Next Test (Enter)</button>
+          <button class="btn" id="btn-res-copy">📋 Copy Result</button>
+          <button class="btn" id="btn-res-stats">View Detailed Stats</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. PRACTICE ARENA VIEW -->
+    <section id="practice-view" class="view-panel">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Targeted Drills & Weak Key Practice</h3>
+        </div>
+        <p style="color:var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+          Select specialized sets of words to target symbols, numbers, punctuation, or paste custom training text.
+        </p>
+
+        <div class="practice-presets">
+          <div class="practice-card" data-preset="common">
+            <h4>Common English 100</h4>
+            <p>Master the most frequent words in written English.</p>
+          </div>
+          <div class="practice-card" data-preset="numbers">
+            <h4>Number Row Mastery</h4>
+            <p>Practice numeric combinations and sequences.</p>
+          </div>
+          <div class="practice-card" data-preset="punctuation">
+            <h4>Punctuation & Syntax</h4>
+            <p>Quotes, commas, hyphens, semicolons, and exclamation points.</p>
+          </div>
+          <div class="practice-card" data-preset="code">
+            <h4>Code Snippets</h4>
+            <p>Common programming keywords, braces, and operators.</p>
+          </div>
+        </div>
+
+        <div class="custom-practice-area">
+          <h4 style="margin-bottom: 0.5rem; font-size: 0.95rem;">Custom Text Practice</h4>
+          <textarea id="custom-practice-input" class="custom-text-input" placeholder="Paste your own article, essay, or code snippet here..."></textarea>
+          <button class="btn btn-primary" id="btn-start-custom-practice">Practice This Custom Text</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. STATISTICS VIEW -->
+    <section id="stats-view" class="view-panel">
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Historical Speed Progression (WPM)</h3>
+        </div>
+        <div class="chart-container" style="height: 280px;">
+          <canvas id="history-chart-canvas"></canvas>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Full Test History</h3>
+          <button class="btn btn-danger" id="btn-clear-history-stats" style="font-size:0.8rem; padding:0.4rem 0.8rem;">Clear All History</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Session</th>
+                <th>Mode</th>
+                <th>Duration / Words</th>
+                <th>Gross WPM</th>
+                <th>Net WPM</th>
+                <th>Accuracy</th>
+                <th>Mistakes</th>
+              </tr>
+            </thead>
+            <tbody id="full-history-tbody">
+              <tr><td colspan="7" style="text-align:center; color:var(--text-dim);">No tests recorded yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. SETTINGS VIEW -->
+    <section id="settings-view" class="view-panel">
+      <div class="settings-list">
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Color Theme</h4>
+            <p>Select your preferred visual aesthetic</p>
+          </div>
+          <select id="setting-theme" class="setting-control">
+            <option value="dark">SaaS Dark (Default)</option>
+            <option value="light">Paper Light</option>
+            <option value="cyberpunk">Cyberpunk Neon</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Typing Font</h4>
+            <p>Font family used inside the typing test arena</p>
+          </div>
+          <select id="setting-font" class="setting-control">
+            <option value="mono">Monospace (Code style)</option>
+            <option value="sans">Clean Sans-Serif</option>
+          </select>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Keyboard Clicks Sound</h4>
+            <p>Synthesize realistic mechanical click audio (Web Audio API)</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="setting-sound" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Live Speed Tracker</h4>
+            <p>Show real-time WPM and accuracy metrics during testing</p>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="setting-live-stats" checked>
+            <span class="slider"></span>
+          </label>
+        </div>
+
+        <div class="setting-item">
+          <div class="setting-info">
+            <h4>Backup & Restore Data</h4>
+            <p>Export your typing history to JSON or restore a previous backup</p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="btn" id="btn-export-json">Export JSON</button>
+            <button class="btn" id="btn-import-json">Import JSON</button>
+            <input type="file" id="file-import-input" accept=".json" style="display:none;" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast-notify">Settings Saved</div>
+
+  <!-- Footer -->
+  <footer>
+    TypeMaster — Built with pure HTML5, CSS3, & Vanilla JavaScript. Zero dependencies.
+  </footer>
+
+  <!-- ==========================================================================
+       Application JavaScript Logic
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       Preset Word Repositories
+       ========================================================================== */
+    const WORD_POOLS = {
+      standard: [
+        "the", "be", "to", "of", "and", "a", "in", "that", "have", "i", "it", "for", "not", "on", "with",
+        "he", "as", "you", "do", "at", "this", "but", "his", "by", "from", "they", "we", "say", "her",
+        "she", "or", "an", "will", "my", "one", "all", "would", "there", "their", "what", "so", "up",
+        "out", "if", "about", "who", "get", "which", "go", "me", "when", "make", "can", "like", "time",
+        "no", "just", "him", "know", "take", "people", "into", "year", "your", "good", "some", "could",
+        "them", "see", "other", "than", "then", "now", "look", "only", "come", "its", "over", "think",
+        "also", "back", "after", "use", "two", "how", "our", "work", "first", "well", "way", "even",
+        "new", "want", "because", "any", "these", "give", "day", "most", "us", "system", "program",
+        "computer", "speed", "focus", "stream", "light", "build", "master", "future", "screen", "typing"
+      ],
+      numbers: [
+        "1024", "42", "2048", "99", "1800", "73", "555", "360", "24/7", "8080", "1995", "2025",
+        "123", "456", "7890", "1337", "404", "500", "200", "3000", "64", "128", "256", "512", "999"
+      ],
+      punctuation: [
+        "hello,", "world!", "well;", "\"master\",", "typing...", "speed:", "accuracy!", "(code)",
+        "{key}", "[data]", "it's", "they're", "can't", "don't!", "semi;colon", "question?", "exclamation!"
+      ],
+      code: [
+        "function", "const", "let", "return", "async", "await", "import", "export", "class",
+        "document.getElementById", "addEventListener", "console.log", "try", "catch", "throw",
+        "=>", "===", "!==", "&&", "||", "this.state", "Array.prototype.map", "Math.max", "null", "undefined"
+      ]
+    };
+
+    /* ==========================================================================
+       Sound Effects (Web Audio API Synthesizer)
+       ========================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+
+      playKeyClick() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        // Realistic subtle mechanical click frequency
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(450 + Math.random() * 80, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(80, this.ctx.currentTime + 0.025);
+
+        gain.gain.setValueAtTime(0.18, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.025);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.03);
+      }
+
+      playErrorSound() {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(140, this.ctx.currentTime);
+        osc.frequency.linearRampToValueAtTime(100, this.ctx.currentTime + 0.06);
+
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.06);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.07);
+      }
+    }
+
+    const soundEngine = new SoundEngine();
+
+    /* ==========================================================================
+       Application State
+       ========================================================================== */
+    const State = {
+      theme: 'dark',
+      font: 'mono',
+      soundEnabled: true,
+      liveStats: true,
+
+      mode: 'time', // 'time', 'words', 'custom'
+      customType: 'time', // for custom mode: 'time' or 'words'
+      timeLimit: 30, // seconds
+      wordLimit: 25, // words
+
+      // Active test state
+      testActive: false,
+      testCompleted: false,
+      testStartTime: null,
+      testInterval: null,
+      timeRemaining: 30,
+      elapsedSeconds: 0,
+
+      words: [],
+      currentWordIndex: 0,
+      currentCharIndex: 0,
+
+      // Tracking keystrokes & calculations
+      totalTypedChars: 0,
+      correctChars: 0,
+      incorrectChars: 0,
+      mistakesCount: 0,
+
+      // Timeline samples for per-second charts
+      secondSnapshots: [], // [{ second, wpm, errors }]
+
+      // Storage
+      history: []
+    };
+
+    /* ==========================================================================
+       DOM References
+       ========================================================================== */
+    const DOM = {
+      navTabs: document.querySelectorAll('.nav-btn'),
+      viewPanels: document.querySelectorAll('.view-panel'),
+      themeToggle: document.getElementById('theme-toggle'),
+      brandHomeBtn: document.getElementById('brand-home-btn'),
+
+      // Dashboard
+      dashTotalTests: document.getElementById('dash-total-tests'),
+      dashAvgWpm: document.getElementById('dash-avg-wpm'),
+      dashBestWpm: document.getElementById('dash-best-wpm'),
+      dashAvgAcc: document.getElementById('dash-avg-acc'),
+      dashTotalTime: document.getElementById('dash-total-time'),
+      dashHistoryBody: document.getElementById('dash-history-body'),
+      historyCountBadge: document.getElementById('history-count-badge'),
+
+      // Quick Actions
+      btnQuickTest: document.getElementById('btn-quick-test'),
+      btnQuickPractice: document.getElementById('btn-quick-practice'),
+      btnQuickStats: document.getElementById('btn-quick-stats'),
+      btnQuickReset: document.getElementById('btn-quick-reset'),
+
+      // Test Controls
+      modeSelector: document.getElementById('mode-selector'),
+      subOptionsTime: document.getElementById('sub-options-time'),
+      subOptionsWords: document.getElementById('sub-options-words'),
+      subOptionsCustom: document.getElementById('sub-options-custom'),
+      customTypeSelector: document.getElementById('custom-type-selector'),
+      customInputVal: document.getElementById('custom-input-val'),
+      customApplyBtn: document.getElementById('custom-apply-btn'),
+
+      // Arena
+      testRunnerContainer: document.getElementById('test-runner-container'),
+      typingArena: document.getElementById('typing-arena'),
+      typingFocusPrompt: document.getElementById('typing-focus-prompt'),
+      hiddenInput: document.getElementById('hidden-typing-input'),
+      wordsContainer: document.getElementById('words-container'),
+      caret: document.getElementById('typing-caret'),
+      timerLabel: document.getElementById('timer-label'),
+      liveTimer: document.getElementById('live-timer'),
+      liveWpm: document.getElementById('live-wpm'),
+      liveAccuracy: document.getElementById('live-accuracy'),
+      liveMistakes: document.getElementById('live-mistakes'),
+      progressBar: document.getElementById('test-progress-bar'),
+      btnRestart: document.getElementById('btn-restart-test'),
+      btnNewText: document.getElementById('btn-new-text'),
+
+      // Results
+      testResultsContainer: document.getElementById('test-results-container'),
+      resNetWpm: document.getElementById('res-net-wpm'),
+      resGrossWpm: document.getElementById('res-gross-wpm'),
+      resAccuracy: document.getElementById('res-accuracy'),
+      resMistakes: document.getElementById('res-mistakes'),
+      resConsistency: document.getElementById('res-consistency'),
+      resKeystrokes: document.getElementById('res-keystrokes'),
+      resultChartCanvas: document.getElementById('result-chart-canvas'),
+      btnResAgain: document.getElementById('btn-res-again'),
+      btnResCopy: document.getElementById('btn-res-copy'),
+      btnResStats: document.getElementById('btn-res-stats'),
+
+      // Practice
+      practiceCards: document.querySelectorAll('.practice-card'),
+      customPracticeInput: document.getElementById('custom-practice-input'),
+      btnStartCustomPractice: document.getElementById('btn-start-custom-practice'),
+
+      // Stats
+      historyChartCanvas: document.getElementById('history-chart-canvas'),
+      fullHistoryTbody: document.getElementById('full-history-tbody'),
+      btnClearHistoryStats: document.getElementById('btn-clear-history-stats'),
+
+      // Settings
+      settingTheme: document.getElementById('setting-theme'),
+      settingFont: document.getElementById('setting-font'),
+      settingSound: document.getElementById('setting-sound'),
+      settingLiveStats: document.getElementById('setting-live-stats'),
+      btnExportJson: document.getElementById('btn-export-json'),
+      btnImportJson: document.getElementById('btn-import-json'),
+      fileImportInput: document.getElementById('file-import-input'),
+      toast: document.getElementById('toast-notify')
+    };
+
+    /* ==========================================================================
+       Toast Helper
+       ========================================================================== */
+    function showToast(message) {
+      DOM.toast.textContent = message;
+      DOM.toast.classList.add('show');
+      setTimeout(() => DOM.toast.classList.remove('show'), 2200);
+    }
+
+    /* ==========================================================================
+       Navigation Controller
+       ========================================================================== */
+    function switchTab(targetTabId) {
+      DOM.navTabs.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === targetTabId);
+      });
+
+      DOM.viewPanels.forEach(panel => {
+        panel.classList.toggle('active', panel.id === targetTabId);
+      });
+
+      if (targetTabId === 'dash-view') updateDashboard();
+      if (targetTabId === 'stats-view') renderStatisticsPage();
+      if (targetTabId === 'test-view') {
+        focusArena();
+      }
+    }
+
+    DOM.navTabs.forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    DOM.brandHomeBtn.addEventListener('click', () => switchTab('dash-view'));
+    DOM.btnQuickTest.addEventListener('click', () => switchTab('test-view'));
+    DOM.btnQuickPractice.addEventListener('click', () => switchTab('practice-view'));
+    DOM.btnQuickStats.addEventListener('click', () => switchTab('stats-view'));
+
+    /* ==========================================================================
+       Word Pool & Text Generation Engine
+       ========================================================================== */
+    function generateWordList(pool = 'standard', count = 60) {
+      const source = WORD_POOLS[pool] || WORD_POOLS.standard;
+      const list = [];
+      for (let i = 0; i < count; i++) {
+        const randomIndex = Math.floor(Math.random() * source.length);
+        list.push(source[randomIndex]);
+      }
+      return list;
+    }
+
+    /* ==========================================================================
+       Typing Engine Core
+       ========================================================================== */
+    function initTest(customWords = null) {
+      clearInterval(State.testInterval);
+      State.testActive = false;
+      State.testCompleted = false;
+      State.testStartTime = null;
+      State.elapsedSeconds = 0;
+      State.secondSnapshots = [];
+      State.currentWordIndex = 0;
+      State.currentCharIndex = 0;
+      State.totalTypedChars = 0;
+      State.correctChars = 0;
+      State.incorrectChars = 0;
+      State.mistakesCount = 0;
+
+      // Determine required word count
+      let wordCount = 70;
+      if (State.mode === 'words') {
+        wordCount = State.wordLimit;
+      } else if (State.mode === 'custom' && State.customType === 'words') {
+        wordCount = State.wordLimit;
+      } else if (State.mode === 'time' || (State.mode === 'custom' && State.customType === 'time')) {
+        wordCount = Math.max(80, Math.ceil(State.timeLimit * 2.8));
+      }
+
+      State.words = customWords || generateWordList('standard', wordCount);
+
+      // Render Words to DOM
+      DOM.wordsContainer.innerHTML = '';
+      State.words.forEach((wordText, wIdx) => {
+        const wordEl = document.createElement('div');
+        wordEl.className = 'word';
+        wordEl.dataset.wordIndex = wIdx;
+
+        for (let cIdx = 0; cIdx < wordText.length; cIdx++) {
+          const charSpan = document.createElement('span');
+          charSpan.className = 'char';
+          charSpan.textContent = wordText[cIdx];
+          wordEl.appendChild(charSpan);
+        }
+        DOM.wordsContainer.appendChild(wordEl);
+      });
+
+      // Reset Live Displays
+      DOM.liveWpm.textContent = '0';
+      DOM.liveAccuracy.textContent = '100%';
+      DOM.liveMistakes.textContent = '0';
+      DOM.progressBar.style.width = '0%';
+
+      if (State.mode === 'time' || (State.mode === 'custom' && State.customType === 'time')) {
+        State.timeRemaining = State.timeLimit;
+        DOM.timerLabel.textContent = 'Time Remaining';
+        DOM.liveTimer.textContent = State.timeRemaining;
+      } else {
+        DOM.timerLabel.textContent = 'Words Left';
+        DOM.liveTimer.textContent = State.words.length;
+      }
+
+      DOM.testResultsContainer.style.display = 'none';
+      DOM.testRunnerContainer.style.display = 'block';
+
+      positionCaret();
+      DOM.hiddenInput.value = '';
+    }
+
+    function positionCaret() {
+      const activeWordEl = DOM.wordsContainer.children[State.currentWordIndex];
+      if (!activeWordEl) return;
+
+      const charEls = activeWordEl.querySelectorAll('.char');
+      let targetX = 0;
+      let targetY = 0;
+
+      if (State.currentCharIndex < charEls.length) {
+        const targetChar = charEls[State.currentCharIndex];
+        targetX = targetChar.offsetLeft;
+        targetY = targetChar.offsetTop;
+      } else {
+        // Position immediately after the last character of current word
+        const lastChar = charEls[charEls.length - 1];
+        if (lastChar) {
+          targetX = lastChar.offsetLeft + lastChar.offsetWidth;
+          targetY = lastChar.offsetTop;
+        }
+      }
+
+      DOM.caret.style.transform = `translate(${targetX}px, ${targetY}px)`;
+
+      // Scroll view smoothly if typing descends through lines
+      const parentTop = DOM.wordsContainer.offsetTop;
+      if (targetY > 70) {
+        DOM.wordsContainer.scrollTop = targetY - 40;
+      } else {
+        DOM.wordsContainer.scrollTop = 0;
+      }
+    }
+
+    function startTestTimer() {
+      State.testActive = true;
+      State.testStartTime = Date.now();
+
+      State.testInterval = setInterval(() => {
+        State.elapsedSeconds++;
+
+        if (State.mode === 'time' || (State.mode === 'custom' && State.customType === 'time')) {
+          State.timeRemaining--;
+          DOM.liveTimer.textContent = Math.max(0, State.timeRemaining);
+          const pct = ((State.timeLimit - State.timeRemaining) / State.timeLimit) * 100;
+          DOM.progressBar.style.width = `${Math.min(pct, 100)}%`;
+
+          if (State.timeRemaining <= 0) {
+            finishTest();
+            return;
+          }
+        } else {
+          // Word mode duration count-up
+          DOM.liveTimer.textContent = Math.max(0, State.words.length - State.currentWordIndex);
+          const pct = (State.currentWordIndex / State.words.length) * 100;
+          DOM.progressBar.style.width = `${Math.min(pct, 100)}%`;
+        }
+
+        // Live calculation sample
+        const elapsedMins = State.elapsedSeconds / 60;
+        const currentWpm = elapsedMins > 0 ? Math.round((State.correctChars / 5) / elapsedMins) : 0;
+        const currentAcc = State.totalTypedChars > 0 ? Math.round((State.correctChars / State.totalTypedChars) * 100) : 100;
+
+        if (State.liveStats) {
+          DOM.liveWpm.textContent = currentWpm;
+          DOM.liveAccuracy.textContent = `${currentAcc}%`;
+          DOM.liveMistakes.textContent = State.mistakesCount;
+        }
+
+        // Record second snapshot for chart
+        State.secondSnapshots.push({
+          second: State.elapsedSeconds,
+          wpm: Math.max(0, currentWpm),
+          errors: State.mistakesCount
+        });
+      }, 1000);
+    }
+
+    /* ==========================================================================
+       Typing Input Handling & Character Validation
+       ========================================================================== */
+    function handleKeyDown(e) {
+      if (State.testCompleted) return;
+
+      // Handle Instant Restart shortcut: Tab + Enter
+      if (e.key === 'Tab') {
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'Enter' && e.ctrlKey) {
+        initTest();
+        return;
+      }
+
+      // Ignore modifier combinations
+      if (e.altKey || e.metaKey || e.ctrlKey) return;
+
+      const activeWord = State.words[State.currentWordIndex];
+      const activeWordEl = DOM.wordsContainer.children[State.currentWordIndex];
+      if (!activeWord || !activeWordEl) return;
+
+      // Start timer on initial key
+      if (!State.testActive && !State.testCompleted && e.key.length === 1) {
+        startTestTimer();
+      }
+
+      // Caret typing pulse
+      DOM.caret.classList.add('typing');
+      clearTimeout(DOM.caretTimeout);
+      DOM.caretTimeout = setTimeout(() => DOM.caret.classList.remove('typing'), 450);
+
+      // Handle BACKSPACE
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        soundEngine.playKeyClick();
+
+        if (State.currentCharIndex > 0) {
+          State.currentCharIndex--;
+          const charEls = activeWordEl.querySelectorAll('.char');
+          const targetChar = charEls[State.currentCharIndex];
+
+          if (targetChar) {
+            if (targetChar.classList.contains('extra')) {
+              targetChar.remove();
+            } else {
+              targetChar.className = 'char';
+            }
+          }
+          positionCaret();
+        }
+        return;
+      }
+
+      // Handle SPACE (Advance to next word)
+      if (e.key === ' ') {
+        e.preventDefault();
+        soundEngine.playKeyClick();
+
+        // If user pressed space without typing anything in this word, do nothing
+        if (State.currentCharIndex === 0) return;
+
+        // Check missed characters in this word
+        const charEls = activeWordEl.querySelectorAll('.char');
+        for (let i = State.currentCharIndex; i < activeWord.length; i++) {
+          if (charEls[i]) {
+            charEls[i].classList.add('incorrect');
+            State.incorrectChars++;
+            State.mistakesCount++;
+            State.totalTypedChars++;
+          }
+        }
+
+        // Advance to next word
+        State.currentWordIndex++;
+        State.currentCharIndex = 0;
+
+        // Check if finished by words count
+        if (State.currentWordIndex >= State.words.length) {
+          finishTest();
+          return;
+        }
+
+        positionCaret();
+        return;
+      }
+
+      // Handle Printable Character
+      if (e.key.length === 1) {
+        const charTyped = e.key;
+        State.totalTypedChars++;
+
+        const charEls = activeWordEl.querySelectorAll('.char');
+
+        if (State.currentCharIndex < activeWord.length) {
+          const expectedChar = activeWord[State.currentCharIndex];
+          const charSpan = charEls[State.currentCharIndex];
+
+          if (charTyped === expectedChar) {
+            charSpan.classList.add('correct');
+            State.correctChars++;
+            soundEngine.playKeyClick();
+          } else {
+            charSpan.classList.add('incorrect');
+            State.incorrectChars++;
+            State.mistakesCount++;
+            soundEngine.playErrorSound();
+          }
+          State.currentCharIndex++;
+        } else {
+          // Extra characters typed past word length
+          if (activeWordEl.children.length < activeWord.length + 8) {
+            const extraSpan = document.createElement('span');
+            extraSpan.className = 'char extra incorrect';
+            extraSpan.textContent = charTyped;
+            activeWordEl.appendChild(extraSpan);
+            State.incorrectChars++;
+            State.mistakesCount++;
+            State.currentCharIndex++;
+            soundEngine.playErrorSound();
+          }
+        }
+
+        // Check if word-based test completed on the final character of the final word
+        if (State.currentWordIndex === State.words.length - 1 &&
+            State.currentCharIndex >= activeWord.length) {
+          finishTest();
+          return;
+        }
+
+        positionCaret();
+      }
+    }
+
+    /* ==========================================================================
+       Calculations & Test Completion
+       ========================================================================== */
+    function finishTest() {
+      if (State.testCompleted) return;
+      State.testCompleted = true;
+      State.testActive = false;
+      clearInterval(State.testInterval);
+
+      // Total duration in minutes
+      const elapsedSeconds = Math.max(1, State.elapsedSeconds);
+      const elapsedMins = elapsedSeconds / 60;
+
+      // Formulas:
+      // Gross WPM = (Total Typed Characters / 5) / Time in Minutes
+      // Net WPM = (Correct Characters / 5) / Time in Minutes
+      // Accuracy = (Correct Characters / Total Typed Characters) * 100
+      const grossWPM = Math.round((State.totalTypedChars / 5) / elapsedMins);
+      const netWPM = Math.max(0, Math.round((State.correctChars / 5) / elapsedMins));
+      const accuracy = State.totalTypedChars > 0
+        ? Math.round((State.correctChars / State.totalTypedChars) * 100)
+        : 100;
+
+      // Consistency Calculation: based on standard deviation of timeline samples
+      let consistency = 100;
+      if (State.secondSnapshots.length > 2) {
+        const wpms = State.secondSnapshots.map(s => s.wpm);
+        const mean = wpms.reduce((a, b) => a + b, 0) / wpms.length;
+        const variance = wpms.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / wpms.length;
+        const stdDev = Math.sqrt(variance);
+        // Normalized consistency percentage
+        consistency = Math.max(40, Math.round(100 - (stdDev / (mean || 1)) * 40));
+      }
+
+      // Package result session
+      const testRecord = {
+        id: Date.now(),
+        date: new Date().toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit' }),
+        mode: State.mode === 'time' ? `${State.timeLimit}s Time` : `${State.wordLimit} Words`,
+        duration: `${elapsedSeconds}s`,
+        grossWpm: grossWPM,
+        netWpm: netWPM,
+        accuracy: accuracy,
+        mistakes: State.mistakesCount,
+        consistency: consistency,
+        correctChars: State.correctChars,
+        totalChars: State.totalTypedChars,
+        snapshots: State.secondSnapshots
+      };
+
+      // Save to history & LocalStorage
+      State.history.unshift(testRecord);
+      saveState();
+
+      // Populate Result Screen
+      DOM.resNetWpm.textContent = netWPM;
+      DOM.resGrossWpm.textContent = grossWPM;
+      DOM.resAccuracy.textContent = `${accuracy}%`;
+      DOM.resMistakes.textContent = State.mistakesCount;
+      DOM.resConsistency.textContent = `${consistency}%`;
+      DOM.resKeystrokes.textContent = `${State.correctChars} / ${State.totalTypedChars}`;
+
+      // Render Results Performance Chart
+      renderResultChart(testRecord.snapshots);
+
+      // Switch screens
+      DOM.testRunnerContainer.style.display = 'none';
+      DOM.testResultsContainer.style.display = 'block';
+    }
+
+    /* ==========================================================================
+       Canvas Chart Engine (Zero External Dependencies)
+       ========================================================================== */
+    function renderResultChart(snapshots) {
+      const canvas = DOM.resultChartCanvas;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+
+      // Set canvas pixel dimensions to match CSS dimensions
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+      const padLeft = 40;
+      const padRight = 20;
+      const padTop = 20;
+      const padBottom = 30;
+
+      ctx.clearRect(0, 0, width, height);
+
+      if (!snapshots || snapshots.length < 2) {
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-dim');
+        ctx.font = '13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Test finished too quickly to plot timeline.', width / 2, height / 2);
+        return;
+      }
+
+      const maxSec = snapshots[snapshots.length - 1].second;
+      const maxWpm = Math.max(...snapshots.map(s => s.wpm), 40) + 10;
+
+      const chartW = width - padLeft - padRight;
+      const chartH = height - padTop - padBottom;
+
+      const getX = sec => padLeft + (sec / maxSec) * chartW;
+      const getY = wpm => padTop + chartH - (wpm / maxWpm) * chartH;
+
+      // Draw Grid & Axes
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+      ctx.lineWidth = 1;
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-dim');
+      ctx.font = '11px monospace';
+      ctx.textAlign = 'right';
+
+      // 4 horizontal grid lines
+      for (let i = 0; i <= 4; i++) {
+        const val = Math.round((maxWpm / 4) * i);
+        const y = getY(val);
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(width - padRight, y);
+        ctx.stroke();
+        ctx.fillText(val, padLeft - 8, y + 4);
+      }
+
+      // Draw WPM smooth line
+      ctx.beginPath();
+      snapshots.forEach((pt, idx) => {
+        const x = getX(pt.second);
+        const y = getY(pt.wpm);
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary');
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Fill subtle gradient area beneath WPM line
+      ctx.lineTo(getX(snapshots[snapshots.length - 1].second), getY(0));
+      ctx.lineTo(getX(snapshots[0].second), getY(0));
+      ctx.closePath();
+      const grad = ctx.createLinearGradient(0, padTop, 0, height - padBottom);
+      grad.addColorStop(0, 'rgba(245, 166, 35, 0.25)');
+      grad.addColorStop(1, 'rgba(245, 166, 35, 0.0)');
+      ctx.fillStyle = grad;
+      ctx.fill();
+
+      // Render Dots
+      snapshots.forEach(pt => {
+        const x = getX(pt.second);
+        const y = getY(pt.wpm);
+        ctx.beginPath();
+        ctx.arc(x, y, 3, 0, Math.PI * 2);
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--primary');
+        ctx.fill();
+      });
+    }
+
+    function renderHistoryChart() {
+      const canvas = DOM.historyChartCanvas;
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * dpr;
+      canvas.height = rect.height * dpr;
+      ctx.scale(dpr, dpr);
+
+      const width = rect.width;
+      const height = rect.height;
+      const padLeft = 40;
+      const padRight = 20;
+      const padTop = 20;
+      const padBottom = 30;
+
+      ctx.clearRect(0, 0, width, height);
+
+      const recentItems = [...State.history].reverse().slice(-15);
+      if (recentItems.length < 2) {
+        ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-dim');
+        ctx.font = '13px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('Take at least 2 tests to display your speed history chart.', width / 2, height / 2);
+        return;
+      }
+
+      const maxWpm = Math.max(...recentItems.map(d => d.netWpm), 50) + 10;
+      const chartW = width - padLeft - padRight;
+      const chartH = height - padTop - padBottom;
+
+      const getX = idx => padLeft + (idx / (recentItems.length - 1)) * chartW;
+      const getY = wpm => padTop + chartH - (wpm / maxWpm) * chartH;
+
+      // Draw Grid
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--border');
+      ctx.lineWidth = 1;
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--text-dim');
+      ctx.font = '11px monospace';
+      ctx.textAlign = 'right';
+
+      for (let i = 0; i <= 4; i++) {
+        const val = Math.round((maxWpm / 4) * i);
+        const y = getY(val);
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(width - padRight, y);
+        ctx.stroke();
+        ctx.fillText(val, padLeft - 8, y + 4);
+      }
+
+      // Draw line
+      ctx.beginPath();
+      recentItems.forEach((pt, idx) => {
+        const x = getX(idx);
+        const y = getY(pt.netWpm);
+        if (idx === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      });
+
+      ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary');
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Data points
+      recentItems.forEach((pt, idx) => {
+        const x = getX(idx);
+        const y = getY(pt.netWpm);
+        ctx.beginPath();
+        ctx.arc(x, y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#ffffff';
+        ctx.fill();
+        ctx.strokeStyle = getComputedStyle(document.body).getPropertyValue('--primary');
+        ctx.lineWidth = 2;
+        ctx.stroke();
+      });
+    }
+
+    /* ==========================================================================
+       Dashboard & Statistics Rendering
+       ========================================================================== */
+    function updateDashboard() {
+      const tests = State.history;
+      DOM.dashTotalTests.textContent = tests.length;
+
+      if (tests.length === 0) {
+        DOM.dashAvgWpm.textContent = '0';
+        DOM.dashBestWpm.textContent = '0';
+        DOM.dashAvgAcc.textContent = '0%';
+        DOM.dashTotalTime.textContent = '0m';
+        DOM.dashHistoryBody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-dim);">No tests recorded yet. Take your first test!</td></tr>`;
+        return;
+      }
+
+      const avgWpm = Math.round(tests.reduce((acc, t) => acc + t.netWpm, 0) / tests.length);
+      const bestWpm = Math.max(...tests.map(t => t.netWpm));
+      const avgAcc = Math.round(tests.reduce((acc, t) => acc + t.accuracy, 0) / tests.length);
+
+      // Estimate total seconds
+      const totalSecs = tests.reduce((sum, t) => sum + parseInt(t.duration || 30), 0);
+      const totalMins = Math.round(totalSecs / 60);
+
+      DOM.dashAvgWpm.textContent = avgWpm;
+      DOM.dashBestWpm.textContent = bestWpm;
+      DOM.dashAvgAcc.textContent = `${avgAcc}%`;
+      DOM.dashTotalTime.textContent = `${totalMins}m`;
+
+      // Render top 5 recent table
+      const recent = tests.slice(0, 5);
+      DOM.dashHistoryBody.innerHTML = recent.map(t => `
+        <tr>
+          <td>${t.date}</td>
+          <td><span style="font-weight:600;">${t.mode}</span></td>
+          <td style="color:var(--primary); font-weight:700;">${t.netWpm}</td>
+          <td>${t.accuracy}%</td>
+          <td style="color:${t.mistakes > 0 ? 'var(--danger)' : 'var(--text-muted)'}">${t.mistakes}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderStatisticsPage() {
+      renderHistoryChart();
+
+      if (State.history.length === 0) {
+        DOM.fullHistoryTbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-dim);">No tests recorded yet.</td></tr>`;
+        return;
+      }
+
+      DOM.fullHistoryTbody.innerHTML = State.history.map((t, idx) => `
+        <tr>
+          <td>#${State.history.length - idx} (${t.date})</td>
+          <td>${t.mode}</td>
+          <td>${t.duration}</td>
+          <td>${t.grossWpm}</td>
+          <td style="font-weight:700; color:var(--primary);">${t.netWpm}</td>
+          <td>${t.accuracy}%</td>
+          <td style="color:${t.mistakes > 0 ? 'var(--danger)' : 'inherit'}">${t.mistakes}</td>
+        </tr>
+      `).join('');
+    }
+
+    /* ==========================================================================
+       Arena Interaction & Focus Handling
+       ========================================================================== */
+    function focusArena() {
+      DOM.typingArena.classList.add('is-focused');
+      DOM.hiddenInput.focus();
+    }
+
+    DOM.typingArena.addEventListener('click', focusArena);
+    DOM.typingFocusPrompt.addEventListener('click', focusArena);
+
+    document.addEventListener('keydown', (e) => {
+      // If typing test panel is active and not targeting input or textarea
+      const isTestPanelActive = document.getElementById('test-view').classList.contains('active');
+      if (!isTestPanelActive) return;
+
+      if (e.target.tagName === 'INPUT' && e.target !== DOM.hiddenInput) return;
+      if (e.target.tagName === 'TEXTAREA') return;
+
+      // Global Tab+Enter to reset test
+      if (e.key === 'Enter' && DOM.testResultsContainer.style.display !== 'none') {
+        DOM.btnResAgain.click();
+        return;
+      }
+
+      if (document.activeElement !== DOM.hiddenInput) {
+        DOM.hiddenInput.focus();
+      }
+    });
+
+    DOM.hiddenInput.addEventListener('keydown', handleKeyDown);
+
+    // Restart & Next text buttons
+    DOM.btnRestart.addEventListener('click', () => {
+      initTest();
+      focusArena();
+    });
+
+    DOM.btnNewText.addEventListener('click', () => {
+      initTest();
+      focusArena();
+    });
+
+    DOM.btnResAgain.addEventListener('click', () => {
+      initTest();
+      focusArena();
+    });
+
+    DOM.btnResCopy.addEventListener('click', () => {
+      const net = DOM.resNetWpm.textContent;
+      const acc = DOM.resAccuracy.textContent;
+      const text = `TypeMaster: I achieved ${net} WPM with ${acc} accuracy! Can you beat my score?`;
+      navigator.clipboard.writeText(text).then(() => showToast('Results copied to clipboard!'));
+    });
+
+    DOM.btnResStats.addEventListener('click', () => {
+      switchTab('stats-view');
+    });
+
+    /* ==========================================================================
+       Test Mode Selectors
+       ========================================================================== */
+    DOM.modeSelector.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('pill-btn')) return;
+      DOM.modeSelector.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+
+      State.mode = e.target.dataset.mode;
+
+      DOM.subOptionsTime.style.display = State.mode === 'time' ? 'flex' : 'none';
+      DOM.subOptionsWords.style.display = State.mode === 'words' ? 'flex' : 'none';
+      DOM.subOptionsCustom.style.display = State.mode === 'custom' ? 'flex' : 'none';
+
+      initTest();
+      focusArena();
+    });
+
+    DOM.subOptionsTime.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('pill-btn')) return;
+      DOM.subOptionsTime.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      State.timeLimit = parseInt(e.target.dataset.val, 10);
+      initTest();
+      focusArena();
+    });
+
+    DOM.subOptionsWords.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('pill-btn')) return;
+      DOM.subOptionsWords.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      State.wordLimit = parseInt(e.target.dataset.val, 10);
+      initTest();
+      focusArena();
+    });
+
+    DOM.customTypeSelector.addEventListener('click', (e) => {
+      if (!e.target.classList.contains('pill-btn')) return;
+      DOM.customTypeSelector.querySelectorAll('.pill-btn').forEach(b => b.classList.remove('active'));
+      e.target.classList.add('active');
+      State.customType = e.target.dataset.customType;
+    });
+
+    DOM.customApplyBtn.addEventListener('click', () => {
+      const val = parseInt(DOM.customInputVal.value, 10);
+      if (isNaN(val) || val < 5) {
+        showToast('Please enter at least 5');
+        return;
+      }
+      if (State.customType === 'time') {
+        State.timeLimit = val;
+      } else {
+        State.wordLimit = val;
+      }
+      showToast(`Custom ${State.customType} set to ${val}`);
+      initTest();
+      focusArena();
+    });
+
+    /* ==========================================================================
+       Practice Mode Drills
+       ========================================================================== */
+    DOM.practiceCards.forEach(card => {
+      card.addEventListener('click', () => {
+        const preset = card.dataset.preset;
+        const words = generateWordList(preset, 50);
+        switchTab('test-view');
+        initTest(words);
+        focusArena();
+        showToast(`Loaded ${card.querySelector('h4').textContent}`);
+      });
+    });
+
+    DOM.btnStartCustomPractice.addEventListener('click', () => {
+      const raw = DOM.customPracticeInput.value.trim();
+      if (!raw) {
+        showToast('Please paste some text first!');
+        return;
+      }
+      const words = raw.split(/\s+/).filter(w => w.length > 0);
+      if (words.length < 3) {
+        showToast('Text too short. Please provide at least 3 words.');
+        return;
+      }
+      switchTab('test-view');
+      initTest(words);
+      focusArena();
+      showToast('Custom drill loaded!');
+    });
+
+    /* ==========================================================================
+       Settings & Storage Persistence
+       ========================================================================== */
+    function saveState() {
+      const data = {
+        theme: State.theme,
+        font: State.font,
+        soundEnabled: State.soundEnabled,
+        liveStats: State.liveStats,
+        history: State.history
+      };
+      localStorage.setItem('typemaster_data', JSON.stringify(data));
+    }
+
+    function loadState() {
+      const saved = localStorage.getItem('typemaster_data');
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          State.theme = parsed.theme || 'dark';
+          State.font = parsed.font || 'mono';
+          State.soundEnabled = parsed.soundEnabled ?? true;
+          State.liveStats = parsed.liveStats ?? true;
+          State.history = parsed.history || [];
+        } catch (err) {
+          console.error('Failed to parse saved state:', err);
+        }
+      }
+
+      applyTheme(State.theme);
+      applyFont(State.font);
+      soundEngine.enabled = State.soundEnabled;
+
+      DOM.settingTheme.value = State.theme;
+      DOM.settingFont.value = State.font;
+      DOM.settingSound.checked = State.soundEnabled;
+      DOM.settingLiveStats.checked = State.liveStats;
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      State.theme = theme;
+      saveState();
+    }
+
+    function applyFont(font) {
+      State.font = font;
+      if (font === 'sans') {
+        DOM.wordsContainer.style.fontFamily = 'var(--font-sans)';
+      } else {
+        DOM.wordsContainer.style.fontFamily = 'var(--font-mono)';
+      }
+      saveState();
+    }
+
+    DOM.themeToggle.addEventListener('click', () => {
+      const nextTheme = State.theme === 'dark' ? 'light' : State.theme === 'light' ? 'cyberpunk' : 'dark';
+      applyTheme(nextTheme);
+      DOM.settingTheme.value = nextTheme;
+      showToast(`Theme: ${nextTheme.charAt(0).toUpperCase() + nextTheme.slice(1)}`);
+    });
+
+    DOM.settingTheme.addEventListener('change', (e) => applyTheme(e.target.value));
+    DOM.settingFont.addEventListener('change', (e) => applyFont(e.target.value));
+    DOM.settingSound.addEventListener('change', (e) => {
+      State.soundEnabled = e.target.checked;
+      soundEngine.enabled = State.soundEnabled;
+      saveState();
+    });
+    DOM.settingLiveStats.addEventListener('change', (e) => {
+      State.liveStats = e.target.checked;
+      saveState();
+    });
+
+    // Reset History
+    function clearAllHistory() {
+      if (confirm('Are you sure you want to clear all recorded typing history? This cannot be undone.')) {
+        State.history = [];
+        saveState();
+        updateDashboard();
+        renderStatisticsPage();
+        showToast('All typing history cleared.');
+      }
+    }
+
+    DOM.btnQuickReset.addEventListener('click', clearAllHistory);
+    DOM.btnClearHistoryStats.addEventListener('click', clearAllHistory);
+
+    // Export & Import Data
+    DOM.btnExportJson.addEventListener('click', () => {
+      const blob = new Blob([localStorage.getItem('typemaster_data') || '{}'], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `typemaster_backup_${new Date().toISOString().slice(0, 10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('Data exported successfully!');
+    });
+
+    DOM.btnImportJson.addEventListener('click', () => DOM.fileImportInput.click());
+
+    DOM.fileImportInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const parsed = JSON.parse(event.target.result);
+          if (parsed && typeof parsed === 'object') {
+            localStorage.setItem('typemaster_data', JSON.stringify(parsed));
+            loadState();
+            updateDashboard();
+            renderStatisticsPage();
+            showToast('Data restored successfully!');
+          }
+        } catch (err) {
+          showToast('Invalid JSON backup file.');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    /* ==========================================================================
+       Window Resize & Caret Alignment Helper
+       ========================================================================== */
+    window.addEventListener('resize', () => {
+      positionCaret();
+      if (document.getElementById('stats-view').classList.contains('active')) {
+        renderHistoryChart();
+      }
+      if (DOM.testResultsContainer.style.display !== 'none') {
+        const lastRec = State.history[0];
+        if (lastRec && lastRec.snapshots) renderResultChart(lastRec.snapshots);
+      }
+    });
+
+    /* ==========================================================================
+       Initialization
+       ========================================================================== */
+    window.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      updateDashboard();
+      initTest();
+    });
+  </script>
+</body>
+</html>
